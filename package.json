@@ -1,0 +1,22 @@
+{
+  "name": "aixware",
+  "version": "0.0.0",
+  "license": "MIT",
+  "angular-cli": {},
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha server/tests --timeout 10000"
+  },
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "jpeg-js": "^0.2.0",
+    "mongoose": "^4.7.6"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.2.0"
+  }
+}
