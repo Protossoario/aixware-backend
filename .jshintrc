@@ -1,4 +1,8 @@
 {
     "node": true,
-    "esversion": 6
+    "esversion": 6,
+    "predef": [
+        "describe",
+        "it"
+    ]
 }

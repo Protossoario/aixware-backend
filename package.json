@@ -5,7 +5,7 @@
   "angular-cli": {},
   "scripts": {
     "start": "node server.js",
-    "test": "mocha server/tests --timeout 10000"
+    "test": "mocha app/tests --timeout 10000"
   },
   "private": true,
   "dependencies": {
