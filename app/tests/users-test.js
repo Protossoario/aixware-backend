@@ -6,7 +6,7 @@ chai.use(chaiHttp);
 const User = require('../models/user');
 const server = require('../../server');
 
-describe('Users', () => {
+describe('Users module', () => {
     beforeEach((done) => {
         User.remove()
             .then(() => done());

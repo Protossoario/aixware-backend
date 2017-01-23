@@ -29,5 +29,6 @@ function respondWithAuthenticationError (response, message) {
 
 module.exports = {
     respondWithFileError: respondWithFileError,
-    respondWithMongooseError: respondWithMongooseError
+    respondWithMongooseError: respondWithMongooseError,
+    respondWithAuthenticationError: respondWithAuthenticationError
 };

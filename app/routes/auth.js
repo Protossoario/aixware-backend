@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const Errors = require('../errors');
 
-const saltRounds = 10;
+const conf = require('../../config/app');
 
 router.post('/', (req, res) => {
     User.findOne({
@@ -17,12 +17,12 @@ router.post('/', (req, res) => {
         }
 
         if (!user) {
-            Errors.respondWithAuthenticationError('Username not found.');
-        } else if (bcrypt.compareSync(req.body.password, user.password)) {
-            Errors.respondWithAuthenticationError('Incorrect password.');
+            Errors.respondWithAuthenticationError(res, 'Username not found.');
+        } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
+            Errors.respondWithAuthenticationError(res, 'Incorrect password.');
         } else {
-            let token = jwt.sign(user, app.get('secret'), {
-                expiresInMinutes: 1440
+            let token = jwt.sign(user, conf.secret, {
+                expiresIn: '24h'
             });
             res.json({
                 data: {

@@ -5,6 +5,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const fs = require('fs');
+const morgan = require('morgan');
 
 // Set project's root directory inside a global variable
 global.appRoot = path.resolve(__dirname);
@@ -26,16 +27,15 @@ mongoose.connection.on('error', console.error.bind(console, 'connection error:')
 // Configure Node ES6 promises
 mongoose.Promise = global.Promise;
 
-// Get app configuration
-const conf = require('./config/app');
-
 // Get our API routes
 const api = require('./app/routes/api');
 
 const app = express();
 
-// Configure app secret
-app.set('secret', conf.secret);
+// Use morgan for logging Apache-style when not testing
+if (process.env.NODE_ENV !== 'test') {
+    app.use(morgan('combined'));
+}
 
 // Parsers for POST data
 app.use(bodyParser.json());

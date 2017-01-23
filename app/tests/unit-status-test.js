@@ -12,7 +12,7 @@ chai.use(chaiHttp);
 const UnitStatus = require('../models/unit-status');
 const server = require('../../server');
 
-describe('UnitStatus', () => {
+describe('UnitStatus module', () => {
     describe('POST /units/:unitId/status', () => {
         it('should save status without the pixel array to the database', (done) => {
             let unitId = crypto.randomBytes(12).toString('hex');

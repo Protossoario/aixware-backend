@@ -11,7 +11,7 @@ chai.use(chaiHttp);
 const User = require('../models/user');
 const server = require('../../server');
 
-describe('Auth', () => {
+describe('Auth module', () => {
     beforeEach((done) => {
         User.remove()
             .then(() => {
@@ -34,7 +34,7 @@ describe('Auth', () => {
         User.remove(() => done());
     });
     describe('POST /api/authenticate', () => {
-        it('should return a token', () => {
+        it('should return a token', (done) => {
            chai.request(server)
             .post('/api/authenticate')
             .send({
@@ -50,6 +50,7 @@ describe('Auth', () => {
                 expect(res.body).to.be.an('object');
                 expect(res.body).to.have.property('data');
                 expect(res.body.data).to.have.property('token');
+                done();
             });
         });
     });

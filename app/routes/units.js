@@ -13,8 +13,6 @@ const UnitStatus = require('../models/unit-status');
  *  Receives the unit status update and converts the included picture data into a file.
  */
 router.post('/:unitId/status', function (req, res) {
-    console.log("Processing POST request:");
-    console.log(req);
     const rawPixelData = req.body.picture.data;
     const width = req.body.picture.width;
     const height = req.body.picture.height;
