@@ -18,6 +18,15 @@ function respondWithMongooseError (response, error) {
     });
 }
 
+function respondWithAuthenticationError (response, message) {
+    response.status(401).json({
+        'error': {
+            'code': 401,
+            'messages': [ message ]
+        }
+    });
+}
+
 module.exports = {
     respondWithFileError: respondWithFileError,
     respondWithMongooseError: respondWithMongooseError

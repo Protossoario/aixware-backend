@@ -38,7 +38,7 @@ describe('UnitStatus', () => {
                         throw err;
                     }
                     expect(res).to.have.status(201);
-                    expect(res.body).to.be.a('object');
+                    expect(res.body).to.be.an('object');
                     expect(res.body).to.have.property('unitStatus');
                     expect(res.body.unitStatus).to.have.property('picture');
                     expect(res.body.unitStatus.picture).not.to.have.property('data');

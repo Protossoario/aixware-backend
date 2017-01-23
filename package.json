@@ -9,9 +9,11 @@
   },
   "private": true,
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "jpeg-js": "^0.2.0",
+    "jsonwebtoken": "^7.2.1",
     "mongoose": "^4.7.6"
   },
   "devDependencies": {

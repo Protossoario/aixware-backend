@@ -11,6 +11,7 @@ global.appRoot = path.resolve(__dirname);
 
 // Load database configuration file
 const db = require('./config/db');
+
 // Connect to MongoDB database
 if (process.env.NODE_ENV === 'test') {
     var url = db.testUrl;
@@ -22,10 +23,19 @@ if (process.env.NODE_ENV === 'test') {
 mongoose.connect(url);
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
 
+// Configure Node ES6 promises
+mongoose.Promise = global.Promise;
+
+// Get app configuration
+const conf = require('./config/app');
+
 // Get our API routes
 const api = require('./app/routes/api');
 
 const app = express();
+
+// Configure app secret
+app.set('secret', conf.secret);
 
 // Parsers for POST data
 app.use(bodyParser.json());
