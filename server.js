@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const morgan = require('morgan');
+const cors = require('cors');
 
 // Set project's root directory inside a global variable
 global.appRoot = path.resolve(__dirname);
@@ -48,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 // Set our api routes with the "/api" prefix
-app.use('/api', api);
+app.use('/api', cors(), api);
 
 // Catch all other routes and return the index file
 app.get('*', (req, res) => {
