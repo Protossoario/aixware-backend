@@ -1,5 +1,5 @@
 function respondWithFileError (response, error) {
-    response.status(400).json({
+    return response.status(400).json({
         'error': {
             'code': 400,
             'messages': [ error.message ]
@@ -8,7 +8,7 @@ function respondWithFileError (response, error) {
 }
 
 function respondWithMongooseError (response, error) {
-    response.status(400).json({
+    return response.status(400).json({
         'error': {
             'code': 400,
             'messages': Object.keys(error.errors).map(function (prop) {
@@ -19,7 +19,7 @@ function respondWithMongooseError (response, error) {
 }
 
 function respondWithAuthenticationError (response, message) {
-    response.status(401).json({
+    return response.status(401).json({
         'error': {
             'code': 401,
             'messages': [ message ]

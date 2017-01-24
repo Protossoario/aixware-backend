@@ -13,7 +13,9 @@ router.get('/', function (req, res) {
         if (err) {
             Errors.respondWithMongooseError(res, err);
         }
-        res.json(users);
+        res.json({
+            data: users
+        });
     });
 });
 
