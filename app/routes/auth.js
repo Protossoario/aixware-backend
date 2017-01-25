@@ -10,7 +10,6 @@ const conf = require('../../config/app');
 
 router.post('/', (req, res) => {
     if (!req.body.username || !req.body.password) {
-        console.log(req.body);
         return Errors.respondWithAuthenticationError(res, 'Missing fields.');
     }
     User.findOne({ email: req.body.username })
@@ -25,9 +24,7 @@ router.post('/', (req, res) => {
                 let token;
                 try {
                     token = jwt.sign({
-                        data: req.body.username,
-                        // expire token in 24 hours (60 s * 60 m * 24 h)
-                        exp: Math.floor(Date.now() / 1000) + (60 * 60) * 24
+                        data: req.body.username
                     }, conf.secret);
                 } catch (err) {
                     return Errors.respondWithAuthenticationError(res, 'Could not sign token.');
