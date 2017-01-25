@@ -24,6 +24,7 @@ function authMiddleware(req, res, next) {
 // Import routes with their respective prefix
 router.use('/units', require('./units'));
 router.use('/authenticate', require('./auth'));
+router.use('/setup', require('./setup'));
 
 // Routes protected by authentication middleware
 router.use(authMiddleware);
