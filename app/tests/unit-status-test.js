@@ -46,4 +46,39 @@ describe('UnitStatus module', () => {
                 });
         });
     });
+    describe('GET /units/:unitId/status', () => {
+        it('should return the most recently created status', (done) => {
+            const unitId = crypto.randomBytes(12).toString('hex');
+            let testStatus = new UnitStatus({
+                _unitId: unitId,
+                latitude: 0,
+                longitude: 0,
+                picture: {
+                    url: '/uploads/test.jpg',
+                    width: 1,
+                    height: 1
+                },
+                acceleration: 0,
+                velocity: 0
+            });
+            testStatus.save()
+                .then((status) => {
+                    return chai.request(server)
+                        .get('/api/units/' + unitId + '/status');
+                })
+                .then((res) => {
+                    expect(res.body).to.have.property('data');
+                    expect(res.body.data).to.be.an('object');
+                    expect(res.body.data).to.have.property('latitude');
+                    expect(res.body.data).to.have.property('longitude');
+                    expect(res.body.data.latitude).to.be.a('number');
+                    expect(res.body.data.longitude).to.be.a('number');
+                    done();
+                })
+                .catch((err) => {
+                    throw err;
+                    done();
+                });
+        });
+    });
 });
