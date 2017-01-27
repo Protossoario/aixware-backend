@@ -22,7 +22,8 @@ let UserSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    deletedAt: Date
 }, {
     timestamps: { }
 });

@@ -143,8 +143,8 @@ describe('Unit module', () => {
                     expect(res.body).to.have.property('data').that.is.an('object');
                     expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'deletedAt', 'name' ]);
                     expect(res.body.data.name).to.equal('Unidad 2');
-                    expect(res.body.data.createdAt).to.be.a('string');
-                    expect(res.body.data.createdAt).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?/);
+                    expect(res.body.data.deletedAt).to.be.a('string');
+                    expect(res.body.data.deletedAt).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?/);
                     done();
                 })
                 .catch((err) => { done(err) });

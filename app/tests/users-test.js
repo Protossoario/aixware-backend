@@ -168,4 +168,29 @@ describe('Users module', () => {
                 });
         });
     });
+    describe('DELETE /users/:userId', () => {
+        it('should edit a user document and return the new version', (done) => {
+            let testUser = new User({
+                firstName: 'Juan',
+                lastName: 'Lozano',
+                email: 'juan.lozano@gmail.com',
+                password: 'unhashedpassword'
+            });
+            testUser.save()
+                .then((user) => {
+                    return chai.request(server)
+                        .delete('/api/users/' + user._id)
+                        .set('x-access-token', authToken);
+                })
+                .then((res) => {
+                    expect(res.body).to.have.property('data').that.is.an('object');
+                    expect(res.body.data).to.have.property('deletedAt');
+                    expect(res.body.data).to.not.have.property('password');
+                    expect(res.body.data.deletedAt).to.be.a('string');
+                    expect(res.body.data.deletedAt).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?/);
+                    done();
+                })
+                .catch((err) => { done(err) });
+        });
+    });
 });

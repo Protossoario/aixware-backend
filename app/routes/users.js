@@ -10,7 +10,7 @@ const User = require('../models/user');
  *  Return an array with all registered users.
  */
 router.get('/', (req, res) => {
-    User.find({ deletedAt: null }, 'firstName lastName email').exec()
+    User.find({ deletedAt: null }, '-password').exec()
         .then((users) => {
             return res.json({
                 data: users
@@ -54,7 +54,7 @@ router.put('/:userId', (req, res) => {
     return User.findByIdAndUpdate(userId, { '$set': req.body }, {
         new: true, // return modified user document as opposed to the original
         runValidators: true,
-        fields: 'firstName lastName email'
+        fields: '-password'
     }).exec()
         .then((user) => {
             return res.json({ data: user });
@@ -69,7 +69,7 @@ router.delete('/:userId', (req, res) => {
     return User.findByIdAndUpdate(userId, { '$set': { deletedAt: new Date() } }, {
         new: true,
         runValidators: false,
-        fields: 'firstName lastName email'
+        fields: '-password'
     }).exec()
         .then((user) => {
             return res.json({ data: user });
