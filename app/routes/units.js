@@ -14,8 +14,8 @@ const UnitStatus = require('../models/unit-status');
  *  Receives the unit status update and converts the included picture data into a file.
  */
 router.post('/:unitId/status', (req, res) => {
-    if (!req.body) {
-        return res.json({ error: { 'messages': [ 'Empty request body.' ] } });
+    if (!('picture' in req.body)) {
+        return res.json({ error: { 'messages': [ 'Missing picture data.' ] } });
     }
     const rawPixelData = req.body.picture.data;
     const width = req.body.picture.width;

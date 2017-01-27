@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test';
+
 // Required testing dependencies
 const bcrypt = require('bcrypt');
 const chai = require('chai');

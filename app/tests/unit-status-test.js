@@ -40,6 +40,9 @@ describe('UnitStatus module', () => {
             .then((res) => {
                 authToken = res.body.data.token;
                 done();
+            })
+            .catch((err) => {
+                done(err);
             });
     });
     afterEach((done) => {
@@ -74,6 +77,23 @@ describe('UnitStatus module', () => {
                     expect(res.body.unitStatus).to.have.property('picture');
                     expect(res.body.unitStatus.picture).not.to.have.property('data');
                     expect(res.body.unitStatus).to.have.property('_unitId');
+                    done();
+                });
+        });
+        it('should return a properly formatted error for an empty payload', (done) => {
+            let unitId = crypto.randomBytes(12).toString('hex');
+            chai.request(server)
+                .post('/api/units/' + unitId + '/status')
+                .send({})
+                .end((err, res) => {
+                    if (err) {
+                        done(err);
+                    }
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.have.property('error');
+                    expect(res.body.error).to.be.an('object');
+                    expect(res.body.error).to.have.property('messages');
+                    expect(res.body.error.messages).to.deep.equal([ 'Missing picture data.' ]);
                     done();
                 });
         });

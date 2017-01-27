@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test';
+
 // Required testing dependencies
 const bcrypt = require('bcrypt');
 const chai = require('chai');
@@ -38,6 +40,9 @@ describe('Unit module', () => {
             .then((res) => {
                 authToken = res.body.data.token;
                 done();
+            })
+            .catch((err) => {
+                done(err);
             });
     });
     afterEach((done) => {
