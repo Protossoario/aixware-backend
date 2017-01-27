@@ -1,6 +1,7 @@
 process.env.NODE_ENV = 'test';
 
 // Require dev dependencies
+const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -8,10 +9,42 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 // Require project files
+const User = require('../models/user');
 const UnitStatus = require('../models/unit-status');
 const server = require('../../server');
 
+var authToken;
 describe('UnitStatus module', () => {
+    beforeEach((done) => {
+        User.remove()
+            .then(() => {
+                return bcrypt.hash('secret', 10);
+            })
+            .then((hash) => {
+                let testUser = new User({
+                    firstName: 'Test',
+                    lastName: 'Dev',
+                    email: 'test@dev.com',
+                    password: hash
+                });
+                return testUser.save();
+            })
+            .then((user) => {
+                return chai.request(server)
+                    .post('/api/authenticate')
+                    .send({
+                        username: 'test@dev.com',
+                        password: 'secret'
+                    });
+            })
+            .then((res) => {
+                authToken = res.body.data.token;
+                done();
+            });
+    });
+    afterEach((done) => {
+        User.remove(() => done());
+    });
     describe('POST /units/:unitId/status', () => {
         it('should save status without the pixel array to the database', (done) => {
             let unitId = crypto.randomBytes(12).toString('hex');
@@ -33,8 +66,7 @@ describe('UnitStatus module', () => {
                 .send(statusData)
                 .end((err, res) => {
                     if (err) {
-                        console.log(res.error);
-                        throw err;
+                        done(err);
                     }
                     expect(res).to.have.status(201);
                     expect(res.body).to.be.an('object');
@@ -64,7 +96,8 @@ describe('UnitStatus module', () => {
             testStatus.save()
                 .then((status) => {
                     return chai.request(server)
-                        .get('/api/units/' + unitId + '/status');
+                        .get('/api/units/' + unitId + '/status')
+                        .set('x-access-token', authToken);
                 })
                 .then((res) => {
                     expect(res.body).to.have.property('data');
@@ -76,8 +109,7 @@ describe('UnitStatus module', () => {
                     done();
                 })
                 .catch((err) => {
-                    throw err;
-                    done();
+                    done(err);
                 });
         });
     });

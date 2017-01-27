@@ -35,13 +35,8 @@ let UnitStatusSchema = new Schema({
             required: true
         }
     }
-});
-
-UnitStatusSchema.pre('save', next => {
-    if (!this.createdAt) {
-        this.createdAt = new Date();
-    }
-    next();
+}, {
+    timestamps: { }
 });
 
 module.exports = mongoose.model('unit-status', UnitStatusSchema);

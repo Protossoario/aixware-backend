@@ -43,8 +43,7 @@ describe('Auth module', () => {
             })
             .end((err, res) => {
                 if (err) {
-                    console.log(res.error);
-                    throw err;
+                    done(err);
                 }
                 expect(res).to.have.status(200);
                 expect(res.body).to.be.an('object');

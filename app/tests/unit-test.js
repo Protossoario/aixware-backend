@@ -6,12 +6,14 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 // Project dependencies
+const Unit = require('../models/unit');
 const User = require('../models/user');
 const server = require('../../server');
 
 var authToken;
-describe('Users module', () => {
+describe('Unit module', () => {
     beforeEach((done) => {
+        Unit.remove();
         User.remove()
             .then(() => {
                 return bcrypt.hash('secret', 10);
@@ -39,18 +41,18 @@ describe('Users module', () => {
             });
     });
     afterEach((done) => {
-        User.remove(() => done());
+        Unit.remove(() => { User.remove(() => done()) });
     });
-    describe('GET /users', () => {
-        it('should return an array of users', (done) => {
+    describe('GET /units', () => {
+        it('should return an empty array', (done) => {
             chai.request(server)
-                .get('/api/users')
+                .get('/api/units')
                 .set('x-access-token', authToken)
                 .then((res) => {
                     expect(res).to.have.status(200);
                     expect(res).to.have.property('body').that.is.an('object');
                     expect(res.body).to.have.property('data').that.is.an('array');
-                    expect(res.body.data).to.have.lengthOf(1);
+                    expect(res.body.data).to.have.lengthOf(0);
                     done();
                 })
                 .catch((err) => {
@@ -59,7 +61,7 @@ describe('Users module', () => {
         });
         it('should return an error when not authenticated', (done) => {
             chai.request(server)
-                .get('/api/users')
+                .get('/api/units')
                 .end((err, res) => {
                     expect(res).to.have.status(401);
                     expect(res).to.have.property('body').that.is.an('object');
@@ -70,22 +72,19 @@ describe('Users module', () => {
                 });
         });
     });
-    describe('POST /users', () => {
-        it('should create a user document', (done) => {
+    describe('POST /units', () => {
+        it('should create a new unit document', (done) => {
             chai.request(server)
-                .post('/api/users')
+                .post('/api/units')
                 .send({
-                    firstName: 'Julia',
-                    lastName: 'Lopez',
-                    email: 'julia.lopez@gmail.com',
-                    password: 'secret'
+                    name: 'Unidad 1'
                 })
                 .set('x-access-token', authToken)
                 .then((res) => {
                     expect(res).to.have.status(201);
                     expect(res.body).to.have.property('data').that.is.an('object');
-                    expect(res.body.data).to.include.keys([ 'firstName', 'lastName', 'email' ]);
-                    expect(res.body.data).to.not.include.keys([ 'password' ]);
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt' ]);
+                    expect(res.body.data.name).to.equal('Unidad 1');
                     done();
                 })
                 .catch((err) => { done(err) });
@@ -94,10 +93,7 @@ describe('Users module', () => {
             chai.request(server)
                 .post('/api/users')
                 .send({
-                    firstName: 'José',
-                    lastName: 'Lourdes',
-                    email: 'jose.lourdes@gmail.com',
-                    password: 'secret'
+                    name: 'Unidad 1'
                 })
                 .end((err, res) => {
                     expect(res).to.have.status(401);
@@ -109,63 +105,49 @@ describe('Users module', () => {
                 });
         });
     });
-    describe('PUT /users', () => {
-        it('should edit a user document and return the new version', (done) => {
-            let testUser = new User({
-                firstName: 'Juan',
-                lastName: 'Lozano',
-                email: 'juan.lozano@gmail.com',
-                password: 'unhashedpassword'
+    describe('PUT /units/:unitId', () => {
+        it('should edit a unit document and return the new version', (done) => {
+            let testUser = new Unit({
+                name: 'Unidad 2'
             });
             testUser.save()
                 .then((user) => {
                     return chai.request(server)
-                        .put('/api/users/' + user._id)
+                        .put('/api/units/' + user._id)
                         .send({
-                            firstName: 'Juanito',
-                            lastName: 'Limón',
-                            email: 'juanito.limon@gmail.com'
+                            name: 'Unidad 3'
                         })
                         .set('x-access-token', authToken);
                 })
                 .then((res) => {
                     expect(res.body).to.have.property('data').that.is.an('object');
-                    expect(res.body.data).to.include.keys([ 'firstName', 'lastName', 'email' ]);
-                    expect(res.body.data).to.not.include.keys([ 'password' ]);
-                    expect(res.body.data.firstName).to.equal('Juanito');
-                    expect(res.body.data.lastName).to.equal('Limón');
-                    expect(res.body.data.email).to.equal('juanito.limon@gmail.com');
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt' ]);
+                    expect(res.body.data.name).to.equal('Unidad 3');
                     done();
                 })
                 .catch((err) => { done(err) });
         });
-        it('should require the old password to change it', (done) => {
-            chai.request(server)
-                .post('/api/users')
-                .send({
-                    firstName: 'Jorge',
-                    lastName: 'Lagos',
-                    email: 'jorge.lagos@hotmail.com',
-                    password: 'secret'
-                })
-                .set('x-access-token', authToken)
-                .then((res) => {
+    });
+    describe('DELETE /units/:unitId', () => {
+        it('should return a document with the deletedAt property set to a timestamp string', (done) => {
+            let testUser = new Unit({
+                name: 'Unidad 2'
+            });
+            testUser.save()
+                .then((user) => {
                     return chai.request(server)
-                        .put('/api/users/' + res.body.data._id)
-                        .send({
-                            password: 'new-secret'
-                        })
+                        .delete('/api/units/' + user._id)
                         .set('x-access-token', authToken);
                 })
                 .then((res) => {
-                    expect(res).to.have.status(401);
-                    expect(res.body).to.not.have.property('data');
-                    done(new Error('Should not be getting through here.'));
-                })
-                .catch((err) => {
-                    expect(err).to.not.be.null;
+                    expect(res.body).to.have.property('data').that.is.an('object');
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'deletedAt', 'name' ]);
+                    expect(res.body.data.name).to.equal('Unidad 2');
+                    expect(res.body.data.createdAt).to.be.a('string');
+                    expect(res.body.data.createdAt).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?/);
                     done();
-                });
+                })
+                .catch((err) => { done(err) });
         });
     });
 });
