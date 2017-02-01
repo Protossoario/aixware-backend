@@ -6,6 +6,12 @@ let UnitSchema = new Schema({
         type: String,
         required: true
     },
+    licensePlate: {
+        type: String,
+        required: true
+    },
+    year: Number,
+    make: String,
     deletedAt: Date
 }, {
     timestamps: { }

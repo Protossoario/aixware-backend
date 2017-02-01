@@ -82,13 +82,18 @@ describe('Unit module', () => {
             chai.request(server)
                 .post('/api/units')
                 .send({
-                    name: 'Unidad 1'
+                    name: 'Unidad 1',
+                    licensePlate: 'DCB1A00',
+                    year: 2017,
+                    make:'Toyota Prius'
                 })
                 .set('x-access-token', authToken)
                 .then((res) => {
                     expect(res).to.have.status(201);
                     expect(res.body).to.have.property('data').that.is.an('object');
-                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt' ]);
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt', 'licensePlate', 'year', 'make' ]);
+                    expect(res.body.data.year).to.be.a('number');
+                    expect(res.body.data.licensePlate).to.equal('DCB1A00');
                     expect(res.body.data.name).to.equal('Unidad 1');
                     done();
                 })
@@ -98,7 +103,10 @@ describe('Unit module', () => {
             chai.request(server)
                 .post('/api/users')
                 .send({
-                    name: 'Unidad 1'
+                    name: 'Unidad 1',
+                    licensePlate: 'DCB1A00',
+                    year: 2017,
+                    make:'Toyota Prius'
                 })
                 .end((err, res) => {
                     expect(res).to.have.status(401);
@@ -113,7 +121,10 @@ describe('Unit module', () => {
     describe('PUT /units/:unitId', () => {
         it('should edit a unit document and return the new version', (done) => {
             let testUser = new Unit({
-                name: 'Unidad 2'
+                name: 'Unidad 2',
+                licensePlate: 'ABC13B8',
+                year: 2014,
+                make: 'Toyota'
             });
             testUser.save()
                 .then((user) => {
@@ -126,7 +137,7 @@ describe('Unit module', () => {
                 })
                 .then((res) => {
                     expect(res.body).to.have.property('data').that.is.an('object');
-                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt' ]);
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'name', 'updatedAt', 'licensePlate', 'year', 'make' ]);
                     expect(res.body.data.name).to.equal('Unidad 3');
                     done();
                 })
@@ -136,7 +147,10 @@ describe('Unit module', () => {
     describe('DELETE /units/:unitId', () => {
         it('should return a document with the deletedAt property set to a timestamp string', (done) => {
             let testUser = new Unit({
-                name: 'Unidad 2'
+                name: 'Unidad 2',
+                licensePlate: 'XXX2517',
+                year: 2015,
+                make: 'Honda'
             });
             testUser.save()
                 .then((user) => {
@@ -146,7 +160,7 @@ describe('Unit module', () => {
                 })
                 .then((res) => {
                     expect(res.body).to.have.property('data').that.is.an('object');
-                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'deletedAt', 'name' ]);
+                    expect(res.body.data).to.include.keys([ '__v', '_id', 'createdAt', 'deletedAt', 'name', 'licensePlate', 'year', 'make' ]);
                     expect(res.body.data.name).to.equal('Unidad 2');
                     expect(res.body.data.deletedAt).to.be.a('string');
                     expect(res.body.data.deletedAt).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?/);
