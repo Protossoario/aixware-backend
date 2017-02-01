@@ -95,6 +95,10 @@ describe('Unit module', () => {
                     expect(res.body.data.year).to.be.a('number');
                     expect(res.body.data.licensePlate).to.equal('DCB1A00');
                     expect(res.body.data.name).to.equal('Unidad 1');
+                    return Unit.find().exec();
+                })
+                .then((units) => {
+                    expect(units).to.have.lengthOf(1);
                     done();
                 })
                 .catch((err) => { done(err) });
