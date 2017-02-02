@@ -42,11 +42,11 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Point static path to dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
-
-// Serve static files from uploads directory
-app.use(express.static(path.join(__dirname, 'uploads')));
 
 // Set our api routes with the "/api" prefix
 app.use('/api', cors(), api);
