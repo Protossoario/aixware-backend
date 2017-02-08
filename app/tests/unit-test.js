@@ -122,7 +122,7 @@ describe('Unit module', () => {
                 });
         });
     });
-    describe('PUT /units/:unitId', () => {
+    describe('PUT /units/:id', () => {
         it('should edit a unit document and return the new version', (done) => {
             let testUser = new Unit({
                 name: 'Unidad 2',
@@ -148,7 +148,7 @@ describe('Unit module', () => {
                 .catch((err) => { done(err) });
         });
     });
-    describe('DELETE /units/:unitId', () => {
+    describe('DELETE /units/:id', () => {
         it('should return a document with the deletedAt property set to a timestamp string', (done) => {
             let testUser = new Unit({
                 name: 'Unidad 2',

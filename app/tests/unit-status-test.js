@@ -16,7 +16,10 @@ const server = require('../../server');
 var authToken;
 describe('UnitStatus module', () => {
     beforeEach((done) => {
-        User.remove()
+        UnitStatus.remove()
+            .then(() => {
+                return User.remove();
+            })
             .then(() => {
                 return bcrypt.hash('secret', 10);
             })
@@ -46,9 +49,13 @@ describe('UnitStatus module', () => {
             });
     });
     afterEach((done) => {
-        User.remove(() => done());
+        UnitStatus.remove()
+            .then(() => {
+                return User.remove();
+            })
+            .then(() => done());
     });
-    describe('POST /units/:unitId/status', () => {
+    describe('POST /units/:id/status', () => {
         it('should save status without the pixel array to the database', (done) => {
             let unitId = crypto.randomBytes(12).toString('hex');
             let statusData = {
@@ -98,7 +105,7 @@ describe('UnitStatus module', () => {
                 });
         });
     });
-    describe('GET /units/:unitId/status', () => {
+    describe('GET /units/:id/status', () => {
         it('should return the most recently created status', (done) => {
             const unitId = crypto.randomBytes(12).toString('hex');
             let testStatus = new UnitStatus({
@@ -126,6 +133,45 @@ describe('UnitStatus module', () => {
                     expect(res.body.data).to.have.property('longitude');
                     expect(res.body.data.latitude).to.be.a('number');
                     expect(res.body.data.longitude).to.be.a('number');
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
+        });
+    });
+    describe('GET /units/lastStatuses', () => {
+        it('should return the most recently created status for each unit', (done) => {
+            const unitId = crypto.randomBytes(12).toString('hex');
+            let testStatus = new UnitStatus({
+                _unitId: unitId,
+                latitude: 0,
+                longitude: 0,
+                picture: {
+                    url: '/uploads/test.jpg',
+                    width: 1,
+                    height: 1
+                },
+                acceleration: 0,
+                velocity: 0
+            });
+            testStatus.save()
+                .then(() => {
+                    return chai.request(server)
+                        .get('/api/units/last-statuses')
+                        .set('x-access-token', authToken);
+                })
+                .then((res) => {
+                    expect(res.body).to.have.property('data');
+                    expect(res.body.data).to.be.an('array');
+                    expect(res.body.data.length).to.equal(1);
+                    let unitStatusExists = {};
+                    for (let status of res.body.data) {
+                        expect(status).to.have.property('_id');
+                        expect(status).to.have.property('lastCreatedAt');
+                        expect(unitStatusExists).to.not.have.property(status._id);
+                        unitStatusExists[status._id] = true;
+                    }
                     done();
                 })
                 .catch((err) => {

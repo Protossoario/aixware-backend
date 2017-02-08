@@ -11,9 +11,21 @@ const Unit = require('../models/unit');
 const UnitStatus = require('../models/unit-status');
 
 /**
+ *  For each unit: returns the last timestamp at which a Unit Status update was created.
+ */
+router.get('/last-statuses', (req, res) => {
+    UnitStatus.aggregate([
+        { $sort: { _id: 1 } },
+        { $group: { _id: '$_unitId', lastCreatedAt: { $last: '$createdAt' }}}
+    ])
+        .then((statuses) => res.json({ data: statuses }))
+        .catch((err) => Errors.respondWithMongooseError(res, err));
+});
+
+/**
  *  Receives the unit status update and converts the included picture data into a file.
  */
-router.post('/:unitId/status', (req, res) => {
+router.post('/:id/status', (req, res) => {
     if (!('picture' in req.body)) {
         return res.json({ error: { 'messages': [ 'Missing picture data.' ] } });
     }
@@ -21,7 +33,7 @@ router.post('/:unitId/status', (req, res) => {
     const width = req.body.picture.width;
     const height = req.body.picture.height;
 
-    const unitId = req.params.unitId;
+    const unitId = req.params.id;
 
     let encodedImage = Pictures.encodeJPEG(Pictures.flattenArray(rawPixelData), width, height);
 
@@ -56,9 +68,9 @@ router.post('/:unitId/status', (req, res) => {
     });
 });
 
-router.get('/:unitId/status', (req, res) => {
-    const unitId = req.params.unitId;
-    // Using find().limit(1) instead of findOne() for faster queries
+router.get('/:id/status', (req, res) => {
+    const unitId = req.params.id;
+    // Use find().limit(1) instead of findOne() for faster queries
     return UnitStatus.find({ _unitId: new ObjectId(unitId) }).sort({ createdAt: 'desc' }).limit(1).exec()
         .then((result) => {
             const statusData = result.length > 0 ? result[0] : {};
@@ -93,8 +105,8 @@ router.post('/', (req, res) => {
         });
 });
 
-router.get('/:unitId', (req, res) => {
-    const unitId = req.params.unitId;
+router.get('/:id', (req, res) => {
+    const unitId = req.params.id;
     return Unit.findById(unitId).exec()
         .then((unit) => {
             return res.json({ data: unit });
@@ -104,8 +116,8 @@ router.get('/:unitId', (req, res) => {
         });
 });
 
-router.put('/:unitId', (req, res) => {
-    const unitId = req.params.unitId;
+router.put('/:id', (req, res) => {
+    const unitId = req.params.id;
     return Unit.findByIdAndUpdate(unitId, { '$set': req.body }, {
         new: true, // return the modified document as opposed to the original
         runValidators: true
@@ -121,8 +133,8 @@ router.put('/:unitId', (req, res) => {
 /**
  *  Soft-delete the unit by setting the deletedAt property to the current timestamp
  */
-router.delete('/:unitId', (req, res) => {
-    const unitId = req.params.unitId;
+router.delete('/:id', (req, res) => {
+    const unitId = req.params.id;
     return Unit.findByIdAndUpdate(unitId, { '$set': { deletedAt: new Date() } }, {
         new: true,
         runValidators: false

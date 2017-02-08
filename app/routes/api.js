@@ -7,7 +7,7 @@ const Errors = require('../errors');
 
 function authMiddleware(req, res, next) {
     let token = req.body.token || req.query.token || req.headers['x-access-token'];
-    // Ignore authentication for POST /units/:unitId/status endpoint
+    // Ignore authentication for POST /units/:id/status endpoint
     if (req.method === 'POST' && req.originalUrl.match(/.*\/api\/units\/[a-zA-Z0-9]+\/status/) !== null) {
         next();
     } else if (token) {
