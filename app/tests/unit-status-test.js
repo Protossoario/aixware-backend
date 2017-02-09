@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
+const fs = require('fs');
 chai.use(chaiHttp);
 
 // Require project files
@@ -76,7 +77,7 @@ describe('UnitStatus module', () => {
                 .send(statusData)
                 .end((err, res) => {
                     if (err) {
-                        done(err);
+                        return done(err);
                     }
                     expect(res).to.have.status(201);
                     expect(res.body).to.be.an('object');
@@ -87,6 +88,41 @@ describe('UnitStatus module', () => {
                     done();
                 });
         });
+        it('should accept a base64 encoded image', (done) => {
+            let unitId = crypto.randomBytes(12).toString('hex');
+            let statusData = {
+                latitude: 0,
+                longitude: 0,
+                picture: {
+                    data: "",
+                    width: 320,
+                    height: 240
+                },
+                acceleration: 0,
+                velocity: 0
+            };
+            fs.readFile('./app/tests/encoded-image.txt', 'utf8', (err, data) => {
+                if (err) {
+                    return done(err);
+                }
+                statusData.picture.data = data.toString('base64');
+                chai.request(server)
+                    .post('/api/units/' + unitId + '/status')
+                    .send(statusData)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        expect(res).to.have.status(201);
+                        expect(res.body).to.be.an('object');
+                        expect(res.body).to.have.property('unitStatus');
+                        expect(res.body.unitStatus).to.have.property('picture');
+                        expect(res.body.unitStatus.picture).not.to.have.property('data');
+                        expect(res.body.unitStatus).to.have.property('_unitId');
+                        done();
+                    });
+            });
+        });
         it('should return a properly formatted error for an empty payload', (done) => {
             let unitId = crypto.randomBytes(12).toString('hex');
             chai.request(server)
@@ -94,7 +130,7 @@ describe('UnitStatus module', () => {
                 .send({})
                 .end((err, res) => {
                     if (err) {
-                        done(err);
+                        return done(err);
                     }
                     expect(res).to.have.status(200);
                     expect(res.body).to.have.property('error');

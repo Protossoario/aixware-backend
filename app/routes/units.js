@@ -30,12 +30,24 @@ router.post('/:id/status', (req, res) => {
         return res.json({ error: { 'messages': [ 'Missing picture data.' ] } });
     }
     const rawPixelData = req.body.picture.data;
-    const width = req.body.picture.width;
-    const height = req.body.picture.height;
 
     const unitId = req.params.id;
 
-    let encodedImage = Pictures.encodeJPEG(Pictures.flattenArray(rawPixelData), width, height);
+    let imageData;
+    try {
+        if (Array.isArray(rawPixelData)) {
+            const width = req.body.picture.width;
+            const height = req.body.picture.height;
+            let encodedImage = Pictures.encodeJPEG(Pictures.flattenArray(rawPixelData), width, height);
+            imageData = encodedImage.data;
+        } else {
+            imageData = Buffer.from(rawPixelData, 'base64');
+        }
+    } catch (ex) {
+        console.error(ex);
+        return res.status(400).json({ error: { messages: ['Failed to decode image data.'] } });
+    }
+    
 
     let directory = new Date().toISOString()
         .substring(0, 10); // extract the Date part of the ISO String representation
@@ -46,10 +58,10 @@ router.post('/:id/status', (req, res) => {
     }
     let imagePath = path.join(dirPath, name);
 
-    fs.writeFile(imagePath, encodedImage.data, 'binary', (fsErr) => {
+    fs.writeFile(imagePath, imageData, 'binary', (fsErr) => {
         if (fsErr) {
             console.error(fsErr);
-            Errors.respondWithFileError(res, fsErr);
+            return Errors.respondWithFileError(res, fsErr);
         }
 
         let statusData = req.body;
@@ -61,9 +73,9 @@ router.post('/:id/status', (req, res) => {
         newUnitStatus.save((mongoErr, unitStatus) => {
             if (mongoErr) {
                 console.error(mongoErr);
-                Errors.respondWithMongooseError(res, mongoErr);
+                return Errors.respondWithMongooseError(res, mongoErr);
             }
-            res.status(201).json({ 'unitStatus': unitStatus });
+            return res.status(201).json({ 'unitStatus': unitStatus });
         });
     });
 });

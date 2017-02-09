@@ -26,7 +26,7 @@ describe('Pictures.flattenArray()', function () {
 
 describe('Pictures.encodeJPEG()', function () {
     it('should return a Buffer object with the same width and height', function () {
-        let encodedData = Pictures.encodeJPEG([ 0xFF, 0x00, 0x00, 0xFF ], 1, 1);
+        let encodedData = Pictures.encodeJPEG(new Buffer([ 0xFF, 0x00, 0x00, 0xFF ]), 1, 1);
         expect(encodedData.data).to.be.an.instanceOf(Buffer);
         expect(encodedData.width).to.equal(1);
         expect(encodedData.height).to.equal(1);
