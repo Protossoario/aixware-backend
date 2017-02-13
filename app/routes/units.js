@@ -27,6 +27,8 @@ router.get('/last-statuses', (req, res) => {
  */
 router.post('/:id/status', (req, res) => {
     if (!('picture' in req.body)) {
+        console.error('Missing picture data.');
+        console.error(req.body);
         return res.json({ error: { 'messages': [ 'Missing picture data.' ] } });
     }
     const rawPixelData = req.body.picture.data;
@@ -44,7 +46,8 @@ router.post('/:id/status', (req, res) => {
             imageData = Buffer.from(rawPixelData, 'base64');
         }
     } catch (ex) {
-        console.error(ex);
+        console.error(ex.message);
+        console.error(req.body);
         return res.status(400).json({ error: { messages: ['Failed to decode image data.'] } });
     }
     
@@ -60,7 +63,8 @@ router.post('/:id/status', (req, res) => {
 
     fs.writeFile(imagePath, imageData, 'binary', (fsErr) => {
         if (fsErr) {
-            console.error(fsErr);
+            console.error(fsErr.message);
+            console.error(req.body);
             return Errors.respondWithFileError(res, fsErr);
         }
 
@@ -72,9 +76,11 @@ router.post('/:id/status', (req, res) => {
         let newUnitStatus = new UnitStatus(statusData);
         newUnitStatus.save((mongoErr, unitStatus) => {
             if (mongoErr) {
-                console.error(mongoErr);
+                console.error('Failed to save status.');
+                console.error(req.body);
                 return Errors.respondWithMongooseError(res, mongoErr);
             }
+            console.log(req.body);
             return res.status(201).json({ 'unitStatus': unitStatus });
         });
     });
