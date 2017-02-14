@@ -43,6 +43,7 @@ router.post('/:id/status', (req, res) => {
             let encodedImage = Pictures.encodeJPEG(Pictures.flattenArray(rawPixelData), width, height);
             imageData = encodedImage.data;
         } else {
+            console.log(rawPixelData);
             imageData = Buffer.from(rawPixelData, 'base64');
         }
     } catch (ex) {
@@ -68,6 +69,7 @@ router.post('/:id/status', (req, res) => {
             return Errors.respondWithFileError(res, fsErr);
         }
 
+        console.log(req.body);
         let statusData = req.body;
         delete statusData.picture.data;
         statusData.picture.url = '/uploads/' + directory + '/' + name;
@@ -80,7 +82,6 @@ router.post('/:id/status', (req, res) => {
                 console.error(req.body);
                 return Errors.respondWithMongooseError(res, mongoErr);
             }
-            console.log(req.body);
             return res.status(201).json({ 'unitStatus': unitStatus });
         });
     });
